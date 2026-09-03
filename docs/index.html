@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Course - Live Playground</title>
+<meta name="description" content="A real PostgreSQL database running in your browser, loaded with 60,000 Spotify tracks.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='15'>🐘</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">▚</span>
+    <div>
+      <h1>SQL Course &middot; Live Playground</h1>
+      <p class="sub">PostgreSQL, running entirely in your browser</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <span id="db-badge" class="badge badge-loading">starting&hellip;</span>
+    <div class="btn-group" role="group" aria-label="Text size">
+      <button id="font-down" class="btn btn-icon" title="Smaller text">A&minus;</button>
+      <button id="font-up" class="btn btn-icon" title="Larger text">A+</button>
+    </div>
+    <button id="theme-toggle" class="btn btn-icon" title="Toggle dark mode">◐</button>
+    <button id="reset-db" class="btn" title="Drop everything and reload the sample data">Reset&nbsp;DB</button>
+  </div>
+</header>
+
+<div id="boot" class="boot">
+  <div class="boot-card">
+    <h2>Starting PostgreSQL</h2>
+    <p class="boot-note">A full Postgres engine is compiled to WebAssembly and loaded here.
+       Nothing you type leaves this machine.</p>
+    <div class="progress"><div id="boot-bar" class="progress-bar"></div></div>
+    <p id="boot-step" class="boot-step">Fetching engine&hellip;</p>
+    <pre id="boot-error" class="boot-error" hidden></pre>
+  </div>
+</div>
+
+<main class="layout" id="app" hidden>
+
+  <aside class="sidebar">
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-panel="panel-examples" role="tab">Examples</button>
+      <button class="tab" data-panel="panel-schema" role="tab">Schema</button>
+    </div>
+    <div id="panel-examples" class="panel is-active"></div>
+    <div id="panel-schema" class="panel"></div>
+  </aside>
+
+  <section class="workspace">
+    <div class="editor-wrap">
+      <div class="editor-toolbar">
+        <button id="run" class="btn btn-primary">Run <kbd>⌘↵</kbd></button>
+        <span class="hint">Select text to run only the selection</span>
+        <span class="spacer"></span>
+        <span id="timing" class="timing"></span>
+      </div>
+      <textarea id="editor"></textarea>
+    </div>
+
+    <div class="results" id="results">
+      <div class="placeholder">
+        <p>Pick an example on the left, or write a query and press <kbd>⌘↵</kbd>.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

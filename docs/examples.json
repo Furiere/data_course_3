@@ -1,0 +1,196 @@
+[
+  {
+    "id": "1-1",
+    "title": "1.1 Filtering & Sorting",
+    "queries": [
+      {
+        "title": "Popular non-explicit tracks since 1990",
+        "sql": "SELECT name, popularity, release_date, duration_ms\nFROM tracks\nWHERE popularity > 70\n  AND release_date >= DATE '1990-01-01'\n  AND NOT explicit\nORDER BY popularity DESC, name\nLIMIT 50;"
+      },
+      {
+        "title": "Pattern matching and IN",
+        "sql": "SELECT name, release_date, tempo, valence\nFROM tracks\nWHERE name ILIKE '%love%'\n  AND time_signature IN (3, 4)\n  AND valence > 0.8\nORDER BY tempo DESC\nLIMIT 30;"
+      },
+      {
+        "title": "How much of a date do we actually know?",
+        "sql": "-- release_date is padded to the 1st when the source only knew the\n-- month or the year. This column says which.\nSELECT release_date_precision, count(*) AS tracks\nFROM tracks\nGROUP BY release_date_precision\nORDER BY tracks DESC;"
+      }
+    ]
+  },
+  {
+    "id": "1-2",
+    "title": "1.2 Aggregate functions",
+    "queries": [
+      {
+        "title": "Every decade at a glance",
+        "sql": "SELECT (EXTRACT(YEAR FROM release_date)::int / 10) * 10 AS decade,\n       count(*)                                   AS tracks,\n       round(avg(popularity), 1)                   AS avg_popularity,\n       round(avg(duration_ms) / 60000.0, 2)        AS avg_minutes,\n       round(avg(energy)::numeric, 3)              AS avg_energy\nFROM tracks\nGROUP BY decade\nHAVING count(*) > 100\nORDER BY decade;"
+      },
+      {
+        "title": "FILTER, and why it beats CASE",
+        "sql": "SELECT (EXTRACT(YEAR FROM release_date)::int / 10) * 10 AS decade,\n       count(*)                          AS tracks,\n       count(*) FILTER (WHERE explicit)  AS explicit_tracks,\n       round(100.0 * count(*) FILTER (WHERE explicit) / count(*), 1) AS pct_explicit\nFROM tracks\nGROUP BY decade\nORDER BY decade;"
+      },
+      {
+        "title": "Percentiles, not just averages",
+        "sql": "SELECT round(avg(duration_ms) / 1000.0)  AS mean_seconds,\n       percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_ms) / 1000.0 AS median_seconds,\n       percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms) / 1000.0 AS p95_seconds,\n       max(duration_ms) / 1000.0 AS longest_seconds\nFROM tracks;"
+      }
+    ]
+  },
+  {
+    "id": "1-3",
+    "title": "1.3 Window functions",
+    "queries": [
+      {
+        "title": "Top 3 tracks per decade",
+        "sql": "WITH ranked AS (\n  SELECT name,\n         popularity,\n         (EXTRACT(YEAR FROM release_date)::int / 10) * 10 AS decade,\n         ROW_NUMBER() OVER (\n           PARTITION BY (EXTRACT(YEAR FROM release_date)::int / 10) * 10\n           ORDER BY popularity DESC, name\n         ) AS rnk\n  FROM tracks\n)\nSELECT decade, rnk, name, popularity\nFROM ranked\nWHERE rnk <= 3\nORDER BY decade, rnk;"
+      },
+      {
+        "title": "Year-over-year change with LAG",
+        "sql": "WITH yearly AS (\n  SELECT EXTRACT(YEAR FROM release_date)::int  AS year,\n         round(avg(energy)::numeric, 3)        AS avg_energy\n  FROM tracks\n  GROUP BY year\n)\nSELECT year,\n       avg_energy,\n       LAG(avg_energy) OVER (ORDER BY year)              AS prev_year,\n       avg_energy - LAG(avg_energy) OVER (ORDER BY year) AS change\nFROM yearly\nWHERE year BETWEEN 1960 AND 2020\nORDER BY year;"
+      },
+      {
+        "title": "Rolling 5-year average (frame clause)",
+        "sql": "WITH yearly AS (\n  SELECT EXTRACT(YEAR FROM release_date)::int AS year,\n         round(avg(danceability)::numeric, 3) AS danceability\n  FROM tracks\n  GROUP BY year\n)\nSELECT year,\n       danceability,\n       round(avg(danceability) OVER (\n         ORDER BY year ROWS BETWEEN 4 PRECEDING AND CURRENT ROW\n       ), 3) AS rolling_5yr\nFROM yearly\nWHERE year >= 1950\nORDER BY year;"
+      },
+      {
+        "title": "RANK vs DENSE_RANK vs ROW_NUMBER",
+        "sql": "SELECT name,\n       popularity,\n       ROW_NUMBER() OVER w AS row_number,\n       RANK()       OVER w AS rank,\n       DENSE_RANK() OVER w AS dense_rank\nFROM tracks\nWHERE release_date >= DATE '2015-01-01'\nWINDOW w AS (ORDER BY popularity DESC)\nLIMIT 25;"
+      }
+    ]
+  },
+  {
+    "id": "1-4",
+    "title": "1.4 Subqueries & CTE",
+    "queries": [
+      {
+        "title": "Artists with a consistently strong catalogue",
+        "sql": "WITH artist_stats AS (\n  SELECT a.id,\n         a.name,\n         count(*)                  AS track_count,\n         round(avg(t.popularity), 1) AS avg_popularity\n  FROM artists a\n  JOIN track_artists ta ON ta.artist_id = a.id\n  JOIN tracks t         ON t.id = ta.track_id\n  GROUP BY a.id, a.name\n)\nSELECT name, track_count, avg_popularity\nFROM artist_stats\nWHERE track_count >= 20\nORDER BY avg_popularity DESC\nLIMIT 25;"
+      },
+      {
+        "title": "Correlated subquery: each artist's best track",
+        "sql": "SELECT a.name AS artist,\n       (SELECT t.name\n          FROM tracks t\n          JOIN track_artists ta ON ta.track_id = t.id\n         WHERE ta.artist_id = a.id\n         ORDER BY t.popularity DESC\n         LIMIT 1) AS best_track,\n       a.followers\nFROM artists a\nORDER BY a.followers DESC\nLIMIT 20;"
+      },
+      {
+        "title": "Recursive CTE: walking the 'fans also like' graph",
+        "sql": "WITH RECURSIVE seed AS (\n  -- start from whichever artist has the most outgoing edges\n  SELECT artist_id AS id\n  FROM artist_related\n  GROUP BY artist_id\n  ORDER BY count(*) DESC\n  LIMIT 1\n),\nreach AS (\n  SELECT id, 0 AS depth FROM seed\n  UNION ALL\n  SELECT ar.related_artist_id, r.depth + 1\n  FROM reach r\n  JOIN artist_related ar ON ar.artist_id = r.id\n  WHERE r.depth < 2\n)\nSELECT min(r.depth) AS hops, a.name\nFROM reach r\nJOIN artists a ON a.id = r.id\nGROUP BY a.name\nORDER BY hops, a.name\nLIMIT 40;"
+      }
+    ]
+  },
+  {
+    "id": "1-5",
+    "title": "1.5 Joins and Unions",
+    "queries": [
+      {
+        "title": "Collaborations: tracks with 3+ credited artists",
+        "sql": "SELECT t.name AS track,\n       string_agg(a.name, ' + ' ORDER BY ta.position) AS artists,\n       t.popularity\nFROM tracks t\nJOIN track_artists ta ON ta.track_id = t.id\nJOIN artists a        ON a.id = ta.artist_id\nGROUP BY t.id, t.name, t.popularity\nHAVING count(*) >= 3\nORDER BY t.popularity DESC\nLIMIT 25;"
+      },
+      {
+        "title": "LEFT JOIN: tracks whose artist we never got",
+        "sql": "-- The source dataset references some artist ids that are missing from\n-- artists.csv, so those links were dropped. An INNER JOIN hides these\n-- tracks entirely; a LEFT JOIN finds them.\nSELECT t.name, t.release_date, t.popularity\nFROM tracks t\nLEFT JOIN track_artists ta ON ta.track_id = t.id\nWHERE ta.track_id IS NULL\nORDER BY t.popularity DESC\nLIMIT 20;"
+      },
+      {
+        "title": "UNION ALL: the extremes in one result",
+        "sql": "(SELECT 'loudest'  AS bucket, name, round(loudness::numeric, 2) AS loudness\n   FROM tracks ORDER BY loudness DESC LIMIT 5)\nUNION ALL\n(SELECT 'quietest' AS bucket, name, round(loudness::numeric, 2)\n   FROM tracks ORDER BY loudness ASC  LIMIT 5)\nORDER BY loudness DESC;"
+      },
+      {
+        "title": "Unnesting the genres array",
+        "sql": "SELECT g              AS genre,\n       count(*)       AS artists,\n       round(avg(a.popularity), 1) AS avg_popularity,\n       sum(a.followers)            AS total_followers\nFROM artists a\nCROSS JOIN LATERAL unnest(a.genres) AS g\nGROUP BY g\nORDER BY artists DESC\nLIMIT 25;"
+      }
+    ]
+  },
+  {
+    "id": "1-6",
+    "title": "1.6 ACID & Execution plans",
+    "queries": [
+      {
+        "title": "A transaction you can safely roll back",
+        "sql": "BEGIN;\n\nUPDATE artists\nSET    followers = followers + 1000000\nWHERE  popularity > 90;\n\n-- inside the transaction we see the new values\nSELECT name, followers FROM artists WHERE popularity > 90 ORDER BY followers DESC LIMIT 10;\n\nROLLBACK;\n\n-- and afterwards, as if it never happened\nSELECT name, followers FROM artists WHERE popularity > 90 ORDER BY followers DESC LIMIT 10;"
+      },
+      {
+        "title": "Reading an execution plan",
+        "sql": "EXPLAIN ANALYZE\nSELECT a.name, count(*) AS tracks\nFROM artists a\nJOIN track_artists ta ON ta.artist_id = a.id\nGROUP BY a.name\nORDER BY tracks DESC\nLIMIT 10;"
+      }
+    ]
+  },
+  {
+    "id": "2-1",
+    "title": "2.1 Create & update tables",
+    "queries": [
+      {
+        "title": "CREATE TABLE ... AS, then inspect",
+        "sql": "DROP TABLE IF EXISTS decade_summary;\n\nCREATE TABLE decade_summary (\n  decade         int PRIMARY KEY,\n  tracks         int NOT NULL,\n  avg_popularity numeric(5,2)\n);\n\nINSERT INTO decade_summary (decade, tracks, avg_popularity)\nSELECT (EXTRACT(YEAR FROM release_date)::int / 10) * 10,\n       count(*),\n       round(avg(popularity), 2)\nFROM tracks\nGROUP BY 1;\n\nSELECT * FROM decade_summary ORDER BY decade;"
+      },
+      {
+        "title": "ALTER TABLE and a computed backfill",
+        "sql": "ALTER TABLE tracks ADD COLUMN IF NOT EXISTS duration_min numeric(6,2);\n\nUPDATE tracks\nSET    duration_min = round(duration_ms / 60000.0, 2);\n\nSELECT name, duration_ms, duration_min\nFROM tracks\nORDER BY duration_min DESC\nLIMIT 10;"
+      },
+      {
+        "title": "UPSERT with ON CONFLICT",
+        "sql": "INSERT INTO decade_summary (decade, tracks, avg_popularity)\nVALUES (2030, 0, 0.00)\nON CONFLICT (decade) DO UPDATE\n  SET tracks         = EXCLUDED.tracks,\n      avg_popularity = EXCLUDED.avg_popularity;\n\nSELECT * FROM decade_summary ORDER BY decade DESC LIMIT 5;"
+      }
+    ]
+  },
+  {
+    "id": "2-2",
+    "title": "2.2 Views & materialized views",
+    "queries": [
+      {
+        "title": "A view that hides the join",
+        "sql": "CREATE OR REPLACE VIEW v_tracks_with_artists AS\nSELECT t.id,\n       t.name       AS track,\n       t.popularity,\n       t.release_date,\n       string_agg(a.name, ', ' ORDER BY ta.position) AS artists\nFROM tracks t\nJOIN track_artists ta ON ta.track_id = t.id\nJOIN artists a        ON a.id = ta.artist_id\nGROUP BY t.id, t.name, t.popularity, t.release_date;\n\nSELECT track, artists, popularity\nFROM v_tracks_with_artists\nORDER BY popularity DESC\nLIMIT 20;"
+      },
+      {
+        "title": "Materialized view + REFRESH",
+        "sql": "DROP MATERIALIZED VIEW IF EXISTS mv_genre_stats;\n\nCREATE MATERIALIZED VIEW mv_genre_stats AS\nSELECT g              AS genre,\n       count(*)       AS artist_count,\n       round(avg(a.popularity), 1) AS avg_popularity\nFROM artists a\nCROSS JOIN LATERAL unnest(a.genres) AS g\nGROUP BY g;\n\nCREATE UNIQUE INDEX mv_genre_stats_genre ON mv_genre_stats(genre);\n\nREFRESH MATERIALIZED VIEW mv_genre_stats;\n\nSELECT * FROM mv_genre_stats ORDER BY artist_count DESC LIMIT 20;"
+      }
+    ]
+  },
+  {
+    "id": "2-3",
+    "title": "2.3 Procedures & functions",
+    "queries": [
+      {
+        "title": "A function with a body",
+        "sql": "CREATE OR REPLACE FUNCTION decade_of(d date)\nRETURNS int\nLANGUAGE sql\nIMMUTABLE\nAS $$\n  SELECT (EXTRACT(YEAR FROM d)::int / 10) * 10;\n$$;\n\nSELECT decade_of(release_date) AS decade, count(*) AS tracks\nFROM tracks\nGROUP BY 1\nORDER BY 1;"
+      },
+      {
+        "title": "A stored procedure that rebuilds a summary table",
+        "sql": "CREATE OR REPLACE PROCEDURE rebuild_decade_summary()\nLANGUAGE plpgsql\nAS $$\nDECLARE\n  affected int;\nBEGIN\n  CREATE TABLE IF NOT EXISTS decade_summary (\n    decade         int PRIMARY KEY,\n    tracks         int NOT NULL,\n    avg_popularity numeric(5,2)\n  );\n\n  DELETE FROM decade_summary;\n\n  INSERT INTO decade_summary (decade, tracks, avg_popularity)\n  SELECT (EXTRACT(YEAR FROM release_date)::int / 10) * 10,\n         count(*),\n         round(avg(popularity), 2)\n  FROM tracks\n  GROUP BY 1;\n\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  RAISE NOTICE 'decade_summary rebuilt with % rows', affected;\nEND;\n$$;\n\nCALL rebuild_decade_summary();\n\nSELECT * FROM decade_summary ORDER BY decade;"
+      }
+    ]
+  },
+  {
+    "id": "2-4",
+    "title": "2.4 Variables",
+    "queries": [
+      {
+        "title": "Variables in a DO block",
+        "sql": "DO $$\nDECLARE\n  cutoff      int := 80;\n  hits        int;\n  total       int;\nBEGIN\n  SELECT count(*) INTO hits  FROM tracks WHERE popularity >= cutoff;\n  SELECT count(*) INTO total FROM tracks;\n\n  RAISE NOTICE 'Tracks at popularity >= %: % of % (%.2f%%)',\n    cutoff, hits, total, (100.0 * hits / total);\nEND;\n$$;"
+      },
+      {
+        "title": "Looping over a query result",
+        "sql": "DO $$\nDECLARE\n  r record;\nBEGIN\n  FOR r IN\n    SELECT (EXTRACT(YEAR FROM release_date)::int / 10) * 10 AS decade,\n           count(*) AS tracks\n    FROM tracks\n    GROUP BY 1\n    ORDER BY 1\n  LOOP\n    RAISE NOTICE '% -> % tracks', r.decade, r.tracks;\n  END LOOP;\nEND;\n$$;"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "title": "3. Query optimization",
+    "queries": [
+      {
+        "title": "Before: a sequential scan",
+        "sql": "-- tracks.popularity is deliberately left unindexed.\nEXPLAIN ANALYZE\nSELECT name, popularity\nFROM tracks\nWHERE popularity > 90\nORDER BY popularity DESC;"
+      },
+      {
+        "title": "After: add the index and re-plan",
+        "sql": "CREATE INDEX IF NOT EXISTS idx_tracks_popularity ON tracks(popularity);\nANALYZE tracks;\n\nEXPLAIN ANALYZE\nSELECT name, popularity\nFROM tracks\nWHERE popularity > 90\nORDER BY popularity DESC;"
+      },
+      {
+        "title": "An index that supports a range on dates",
+        "sql": "CREATE INDEX IF NOT EXISTS idx_tracks_release_date ON tracks(release_date);\nANALYZE tracks;\n\nEXPLAIN ANALYZE\nSELECT count(*)\nFROM tracks\nWHERE release_date BETWEEN DATE '1995-01-01' AND DATE '1999-12-31';"
+      },
+      {
+        "title": "Inspect what indexes exist",
+        "sql": "SELECT tablename, indexname, indexdef\nFROM pg_indexes\nWHERE schemaname = 'public'\nORDER BY tablename, indexname;"
+      }
+    ]
+  }
+]

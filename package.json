@@ -1,0 +1,26 @@
+{
+  "name": "data-course-3",
+  "version": "1.0.0",
+  "description": "SQL course with a browser-based PostgreSQL playground",
+  "main": "scripts/build_db.mjs",
+  "scripts": {
+    "prepare-data": "python3 scripts/prepare_data.py",
+    "build": "node scripts/build_db.mjs",
+    "serve": "python3 -m http.server 8099 --directory docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Furiere/data_course_3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Furiere/data_course_3/issues"
+  },
+  "homepage": "https://github.com/Furiere/data_course_3#readme",
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.8"
+  }
+}

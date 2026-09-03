@@ -1,0 +1,67 @@
+{
+  "generated": "2026-09-03T11:00:25.703Z",
+  "tables": [
+    {
+      "table": "artists",
+      "file": "artists.csv.gz",
+      "columns": [
+        "id",
+        "name",
+        "followers",
+        "popularity",
+        "genres"
+      ],
+      "bytes": 1098393,
+      "rows": 27385
+    },
+    {
+      "table": "tracks",
+      "file": "tracks.csv.gz",
+      "columns": [
+        "id",
+        "name",
+        "popularity",
+        "duration_ms",
+        "explicit",
+        "release_date",
+        "release_date_precision",
+        "danceability",
+        "energy",
+        "key",
+        "loudness",
+        "mode",
+        "speechiness",
+        "acousticness",
+        "instrumentalness",
+        "liveness",
+        "valence",
+        "tempo",
+        "time_signature"
+      ],
+      "bytes": 4058176,
+      "rows": 60000
+    },
+    {
+      "table": "track_artists",
+      "file": "track_artists.csv.gz",
+      "columns": [
+        "track_id",
+        "artist_id",
+        "position"
+      ],
+      "bytes": 1907680,
+      "rows": 74624
+    },
+    {
+      "table": "artist_related",
+      "file": "artist_related.csv.gz",
+      "columns": [
+        "artist_id",
+        "related_artist_id",
+        "position"
+      ],
+      "bytes": 3349337,
+      "rows": 210844
+    }
+  ]
+}

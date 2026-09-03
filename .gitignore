@@ -1,1 +1,13 @@
 pdf_base/
+
+# Raw Kaggle download. dict_artists.json (317 MB) and tracks.csv (112 MB) are
+# both over GitHub's 100 MB per-file limit, so this never gets committed -
+# see README for how to fetch it.
+source/
+
+# Intermediate CSVs produced by scripts/prepare_data.py. The shipped artifacts
+# are the gzipped copies under docs/data/, which ARE committed.
+build/
+
+node_modules/
+.DS_Store
