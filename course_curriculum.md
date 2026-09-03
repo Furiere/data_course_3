@@ -1,4 +1,4 @@
-# The course curriculum:
+# The course curriculum
 1. Basics
     1.1 Filtering, Sorting
     1.2 Aggregate functions
