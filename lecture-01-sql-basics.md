@@ -130,7 +130,9 @@ where name = 'Everlong';
 ```
 
 <!--result-->
-_(no rows)_
+| name | duration_ms | minutes_int | minutes_exact | minutes_rounded | interval | minutes_seconds_char |
+|---|---|---|---|---|---|---|
+| Everlong | 250547 | 4 | 4.1757833333333333 | 4.18 | 00:04:10.547 | 04:10 |
 <!--/result-->
 
 String functions:
