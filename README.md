@@ -1,1 +1,1 @@
-# data_course_3
+# This is a SQL course, a part of our Data Course for future trainees and junior data analysts
