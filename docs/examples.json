@@ -5,7 +5,7 @@
     "queries": [
       {
         "title": "Popular non-explicit tracks since 1990",
-        "sql": "SELECT name, popularity, release_date, duration_ms\nFROM tracks\nWHERE popularity > 70\n  AND release_date >= DATE '1990-01-01'\n  AND NOT explicit\nORDER BY popularity DESC, name\nLIMIT 50;"
+        "sql": "SELECT name, popularity, release_date, TO_CHAR((duration_ms || ' milliseconds')::interval, 'MI:SS') as duration\nFROM tracks\nWHERE popularity > 70\n  AND release_date >= DATE '1990-01-01'\n  AND NOT explicit\nORDER BY popularity DESC, name\nLIMIT 50;"
       },
       {
         "title": "Pattern matching and IN",
