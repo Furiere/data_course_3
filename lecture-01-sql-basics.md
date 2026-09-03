@@ -122,10 +122,11 @@ SELECT name,
        duration_ms,
        duration_ms / 60000        AS minutes_int,
        duration_ms / 60000.0      AS minutes_exact,
-       round(duration_ms / 60000.0, 2) AS minutes_rounded
-  FROM tracks
- WHERE name = 'Bohemian Rhapsody'
- LIMIT 3;
+       round(duration_ms / 60000.0, 2) AS minutes_rounded,
+       (duration_ms || 'milliseconds') :: interval as interval,
+       to_char((duration_ms || 'milliseconds') :: interval, 'MI:SS') as minutes_seconds_char
+FROM tracks
+where name = 'Everlong';
 ```
 
 <!--result-->
