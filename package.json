@@ -6,7 +6,9 @@
   "scripts": {
     "prepare-data": "python3 scripts/prepare_data.py",
     "build": "node scripts/build_db.mjs",
-    "serve": "python3 -m http.server 8099 --directory docs"
+    "serve": "python3 -m http.server 8099 --directory docs",
+    "lectures": "node scripts/build_lectures.mjs",
+    "check": "node scripts/build_lectures.mjs --check"
   },
   "repository": {
     "type": "git",

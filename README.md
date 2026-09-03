@@ -79,6 +79,39 @@ Run it locally with `npm run serve` and open <http://localhost:8099>.
 > three seconds of `COPY` in the browser and win by a wide margin on the thing a
 > classroom actually feels, which is download time.
 
+## The lectures
+
+Both lectures teach against the same Spotify database as the playground, so a
+student can paste any example straight into the browser and get the printed result.
+
+**Every result table in the lectures is generated, not typed.** `npm run lectures`
+replays each lecture statement by statement against a fresh copy of the database
+and rewrites the tables from what actually came back:
+
+```bash
+npm run lectures      # run all examples and refresh the result tables
+npm run check         # verify without rewriting — fails if anything is stale or broken
+```
+
+That is 112 SQL examples across the two lectures, all executed on every run. A
+query that stops working, or a result table that drifts out of date, fails the
+build instead of surprising you in front of a class.
+
+Three markers control it, in the markdown itself:
+
+| Marker | Effect |
+| --- | --- |
+| `<!--noexec-->` before a block | it is syntax or a deliberate error, so don't run it |
+| `<!--result-->…<!--/result-->` after a block | regenerate the table in between |
+| `<!--result:20-->` | same, but show up to 20 rows (default 8) |
+
+`RAISE NOTICE` output is captured too, so `DO` blocks and procedures show what
+they actually printed.
+
+Images are not generated. Each one is marked with a `🖼️ Placeholder` line naming
+the path to drop the file at — see [`images/README.md`](images/README.md), or
+`grep -n '🖼️' lecture-*.md` for the outstanding list.
+
 ## Adding an example query
 
 Edit [`docs/examples.json`](docs/examples.json) — sections map to curriculum
