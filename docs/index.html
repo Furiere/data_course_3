@@ -7,7 +7,10 @@
 <meta name="description" content="A real PostgreSQL database running in your browser, loaded with 60,000 Spotify tracks.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='15'>🐘</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-<link rel="stylesheet" href="styles.css">
+<!-- GitHub Pages serves every file with max-age=600, so a fresh index.html can
+     otherwise pair with a ten-minute-old app.js and render an empty sidebar.
+     Bump ?v= whenever app.js or styles.css changes. -->
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
@@ -94,6 +97,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/runmode/runmode.min.js"></script>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=2"></script>
 </body>
 </html>
