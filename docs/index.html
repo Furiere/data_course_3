@@ -45,14 +45,32 @@
 
   <aside class="sidebar">
     <div class="tabs" role="tablist">
-      <button class="tab is-active" data-panel="panel-examples" role="tab">Examples</button>
+      <button class="tab is-active" data-panel="panel-lectures" role="tab">Lectures</button>
+      <button class="tab" data-panel="panel-examples" role="tab">Examples</button>
       <button class="tab" data-panel="panel-schema" role="tab">Schema</button>
     </div>
-    <div id="panel-examples" class="panel is-active"></div>
+    <div id="panel-lectures" class="panel is-active"></div>
+    <div id="panel-examples" class="panel"></div>
     <div id="panel-schema" class="panel"></div>
   </aside>
 
-  <section class="workspace">
+  <section class="workspace" id="workspace">
+
+    <div class="lecture" id="lecture">
+      <div class="lecture-toolbar">
+        <strong id="lecture-title" class="lecture-title">Lecture</strong>
+        <span class="hint">Press <kbd>▶ Run</kbd> on any query to send it to the editor below</span>
+        <span class="spacer"></span>
+        <button id="lecture-collapse" class="btn btn-icon" title="Hide the lecture pane">▴</button>
+      </div>
+      <article id="lecture-body" class="lecture-body prose">
+        <p class="placeholder">Pick a lecture on the left.</p>
+      </article>
+    </div>
+
+    <div class="splitter" id="splitter" role="separator" aria-orientation="horizontal"
+         title="Drag to resize the lecture pane"></div>
+
     <div class="editor-wrap">
       <div class="editor-toolbar">
         <button id="run" class="btn btn-primary">Run <kbd>⌘↵</kbd></button>
@@ -72,8 +90,10 @@
 
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/runmode/runmode.min.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>

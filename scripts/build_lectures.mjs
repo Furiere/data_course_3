@@ -15,7 +15,7 @@
  *         --check verifies without rewriting the files (for CI).
  */
 
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openDb, toMarkdown } from './run_sql.mjs';
@@ -123,12 +123,48 @@ async function processFile(file, check) {
   return { failures: failures.length, stale: check && changed };
 }
 
+/**
+ * Copy the lectures into the published site so the playground can render them
+ * next to the editor. The site is served from docs/, so anything above it is
+ * unreachable from the browser — a copy is the whole mechanism.
+ */
+async function publish(check) {
+  const dir = join(ROOT, 'docs', 'lectures');
+  if (!check) await mkdir(dir, { recursive: true });
+
+  const index = [];
+  let stale = 0;
+  for (const file of LECTURES) {
+    const md = await readFile(join(ROOT, file), 'utf8');
+    if (check) {
+      const published = await readFile(join(dir, file), 'utf8').catch(() => null);
+      if (published !== md) stale++;
+    } else {
+      await writeFile(join(dir, file), md);
+    }
+    const heading = md.match(/^#\s+(.+?)\s*$/m);
+    index.push({ file, title: heading ? heading[1] : file });
+  }
+
+  const json = JSON.stringify(index, null, 2) + '\n';
+  if (check) {
+    if (await readFile(join(dir, 'index.json'), 'utf8').catch(() => null) !== json) stale++;
+    console.log(`docs/lectures/: ${stale ? `${stale} file(s) OUT OF DATE` : 'up to date'}`);
+  } else {
+    await writeFile(join(dir, 'index.json'), json);
+    console.log(`docs/lectures/: ${index.length} lectures published`);
+  }
+  return stale;
+}
+
 const check = process.argv.includes('--check');
 let bad = 0;
 for (const file of LECTURES) {
   const r = await processFile(file, check);
   bad += r.failures + (r.stale ? 1 : 0);
 }
+bad += await publish(check);
+
 if (bad) {
   console.error(`\n${bad} problem(s).`);
   process.exit(1);

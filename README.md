@@ -15,8 +15,16 @@ WebAssembly) running in the browser against a sample of the Spotify dataset.
 Nothing is installed and no query leaves the machine, so students can follow a
 live demo and then experiment on the same data.
 
-It ships 32 example queries mapped to the curriculum sections, a schema browser,
-`EXPLAIN ANALYZE` output, CSV export, and a text-size control for projecting.
+**Both lectures are built into the site.** The reading pane sits above the
+editor, and every SQL block in the text has a **▶ Run** button that drops the
+query into the editor below and executes it — so a student reads a paragraph and
+runs its example without leaving the page or copying anything. The sidebar
+carries a table of contents, the divider between the two panes drags, and the
+pane collapses when you want the editor full height.
+
+It also ships 32 example queries mapped to the curriculum sections, a schema
+browser, `EXPLAIN ANALYZE` output, CSV export, and a text-size control for
+projecting.
 The database is in-memory: **a page refresh is a clean reset**, which is what you
 want after a lecture drops a table.
 
@@ -89,9 +97,15 @@ replays each lecture statement by statement against a fresh copy of the database
 and rewrites the tables from what actually came back:
 
 ```bash
-npm run lectures      # run all examples and refresh the result tables
+npm run lectures      # run all examples, refresh the result tables, publish to docs/
 npm run check         # verify without rewriting — fails if anything is stale or broken
 ```
+
+`npm run lectures` also copies the finished markdown into `docs/lectures/` with an
+`index.json`, which is what the site's reading pane fetches. The site is served
+from `docs/`, so a copy is the only way the browser can reach the files —
+**edit the lectures at the repo root, never the copies**, and rerun the command.
+`npm run check` fails if the copies have drifted.
 
 That is 112 SQL examples across the two lectures, all executed on every run. A
 query that stops working, or a result table that drifts out of date, fails the
@@ -128,13 +142,15 @@ The site is served from the `docs/` folder on `main`. In the repository:
 ```text
 docs/                 the published site (GitHub Pages root)
   index.html
-  app.js              boots PGlite, loads the CSVs, runs queries
+  app.js              boots PGlite, loads the CSVs, renders lectures, runs queries
   styles.css
   examples.json       the example queries shown in the sidebar
   schema.sql          copied from scripts/ at build time
   data/               *.csv.gz + manifest.json
+  lectures/           the lecture markdown + index.json, copied from the root
 scripts/
   prepare_data.py     raw Kaggle dump -> sampled, clean CSVs
   schema.sql          the DDL, single source of truth
   build_db.mjs        compress + verify -> docs/data/
+  build_lectures.mjs  run every lecture example -> result tables + docs/lectures/
 ```

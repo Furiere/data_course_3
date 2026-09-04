@@ -1,0 +1,10 @@
+[
+  {
+    "file": "lecture-01-sql-basics.md",
+    "title": "Lecture 1. SQL Basics"
+  },
+  {
+    "file": "lecture-02-ddl-dml-procedures-variables.md",
+    "title": "Lecture 2. DDL & DML, Procedures, Variables"
+  }
+]

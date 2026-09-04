@@ -88,6 +88,7 @@ async function boot() {
     step('Building schema browser…', 95);
     await renderSchema();
     await renderExamples();
+    await initLectures();
     initEditor();
 
     step('Ready', 100);
@@ -379,6 +380,232 @@ async function renderExamples() {
     }
   }
 }
+
+/* -------------------------------------------------------------- lectures */
+
+/* The lecture markdown is copied into docs/lectures/ by
+   `npm run lectures`, rendered here, and every SQL block in it gets a Run
+   button wired to the same editor and database as the examples. */
+
+const LECTURE_KEY = 'sqlcourse.lecture';
+
+let lectureIndex = [];
+let currentLecture = null;
+
+/** GitHub's heading slugs, so the "Contents" links in the markdown resolve. */
+function slugger() {
+  const seen = new Map();
+  return (text) => {
+    const base = text.toLowerCase().trim()
+      .replace(/[^\w\- ]+/g, '')
+      .replace(/\s+/g, '-');
+    const n = seen.get(base) || 0;
+    seen.set(base, n + 1);
+    return n ? `${base}-${n}` : base;
+  };
+}
+
+/** Is this block marked <!--noexec--> — syntax or a deliberate error? */
+function isNoexec(pre) {
+  for (let n = pre.previousSibling; n; n = n.previousSibling) {
+    if (n.nodeType === Node.TEXT_NODE && !n.textContent.trim()) continue;
+    return n.nodeType === Node.COMMENT_NODE && n.textContent.includes('noexec');
+  }
+  return false;
+}
+
+function sendToEditor(sql, andRun) {
+  editor.setValue(sql.endsWith('\n') ? sql : sql + '\n');
+  editor.focus();
+  if (andRun) execute(sql.trim());
+}
+
+/** Give each SQL block a Run bar, make tables scrollable, id the headings. */
+function decorate(root) {
+  const slug = slugger();
+  for (const h of root.querySelectorAll('h1, h2, h3, h4')) {
+    h.id = slug(h.textContent);
+  }
+
+  for (const table of root.querySelectorAll('table')) {
+    const wrap = el('div', 'table-scroll');
+    table.replaceWith(wrap);
+    wrap.append(table);
+  }
+
+  for (const pre of [...root.querySelectorAll('pre')]) {
+    const code = pre.querySelector('code');
+    if (!code || !/\blanguage-sql\b/.test(code.className)) continue;
+
+    const sql = code.textContent;
+
+    // Same highlighter as the editor, so a block reads identically in both.
+    code.textContent = '';
+    code.className = 'cm-s-default';
+    CodeMirror.runMode(sql, 'text/x-pgsql', code);
+
+    const block = el('div', 'sql-block');
+    pre.replaceWith(block);
+    block.append(pre);
+
+    const bar = el('div', 'sql-bar');
+    if (isNoexec(block)) {
+      bar.append(el('span', 'note', ['Syntax only — not meant to run as it stands']));
+    } else {
+      const runBtn = el('button', 'btn btn-primary', ['▶ Run']);
+      runBtn.addEventListener('click', () => sendToEditor(sql, true));
+      const loadBtn = el('button', 'btn', ['Load into editor']);
+      loadBtn.addEventListener('click', () => sendToEditor(sql, false));
+      bar.append(runBtn, loadBtn);
+    }
+    block.append(bar);
+  }
+
+  // In-page links from the lecture's own "Contents" list scroll the pane
+  // rather than navigating the whole page.
+  for (const a of root.querySelectorAll('a[href^="#"]')) {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      scrollToHeading(decodeURIComponent(a.getAttribute('href').slice(1)));
+    });
+  }
+}
+
+function scrollToHeading(id) {
+  const target = document.getElementById(id);
+  if (!target) return;
+  const body = $('lecture-body');
+  body.scrollTop += target.getBoundingClientRect().top - body.getBoundingClientRect().top - 8;
+  showLecture();
+}
+
+function renderToc() {
+  const panel = $('panel-lectures');
+  panel.innerHTML = '';
+
+  panel.append(el('div', 'section-title', ['Lectures']));
+  for (const l of lectureIndex) {
+    const btn = el('button', 'example', [l.title]);
+    if (l.file === currentLecture) btn.classList.add('is-active');
+    btn.addEventListener('click', () => openLecture(l.file));
+    panel.append(btn);
+  }
+
+  const headings = $('lecture-body').querySelectorAll('h2, h3');
+  if (!headings.length) return;
+  panel.append(el('div', 'section-title', ['On this page']));
+  for (const h of headings) {
+    const btn = el('button', `toc-link ${h.tagName.toLowerCase()}`, [h.textContent]);
+    btn.dataset.target = h.id;
+    btn.addEventListener('click', () => scrollToHeading(h.id));
+    panel.append(btn);
+  }
+}
+
+/** Highlight the section currently under the top of the reading pane. */
+function syncToc() {
+  const body = $('lecture-body');
+  const top = body.getBoundingClientRect().top + 60;
+  let active = null;
+  for (const h of body.querySelectorAll('h2, h3')) {
+    if (h.getBoundingClientRect().top <= top) active = h.id;
+    else break;
+  }
+  for (const link of $('panel-lectures').querySelectorAll('.toc-link')) {
+    link.classList.toggle('is-active', link.dataset.target === active);
+  }
+}
+
+async function openLecture(file) {
+  const body = $('lecture-body');
+  const meta = lectureIndex.find((l) => l.file === file) || { file, title: file };
+  body.innerHTML = '<p class="placeholder">Loading…</p>';
+  showLecture();
+
+  try {
+    const md = await fetch(`lectures/${file}`).then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.text();
+    });
+    body.innerHTML = marked.parse(md, { gfm: true });
+    decorate(body);
+  } catch (err) {
+    body.innerHTML = '';
+    const box = el('div', 'error');
+    box.append(el('b', null, [`Could not load ${file}`]), String(err.message || err));
+    body.append(box);
+  }
+
+  currentLecture = file;
+  $('lecture-title').textContent = meta.title;
+  body.scrollTop = 0;
+  try { localStorage.setItem(LECTURE_KEY, file); } catch { /* private mode */ }
+  renderToc();
+  syncToc();
+}
+
+function showLecture() { $('workspace').classList.remove('is-collapsed'); }
+
+async function initLectures() {
+  const panel = $('panel-lectures');
+  try {
+    lectureIndex = await fetch('lectures/index.json').then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    });
+  } catch {
+    panel.append(el('div', 'placeholder', ['No lectures published. Run `npm run lectures`.']));
+    $('workspace').classList.add('is-collapsed');
+    return;
+  }
+
+  renderToc();
+  $('lecture-body').addEventListener('scroll', syncToc, { passive: true });
+
+  let wanted;
+  try { wanted = localStorage.getItem(LECTURE_KEY); } catch { /* private mode */ }
+  const file = lectureIndex.some((l) => l.file === wanted) ? wanted : lectureIndex[0]?.file;
+  if (file) await openLecture(file);
+}
+
+$('lecture-collapse').addEventListener('click', () => {
+  const ws = $('workspace');
+  const collapsed = ws.classList.toggle('is-collapsed');
+  $('lecture-collapse').textContent = collapsed ? '▾' : '▴';
+  $('lecture-collapse').title = collapsed ? 'Show the lecture pane' : 'Hide the lecture pane';
+  if (editor) editor.refresh();
+});
+
+/* Drag the divider between the lecture and the editor. */
+(() => {
+  const splitter = $('splitter');
+  const ws = $('workspace');
+  let dragging = false;
+
+  const move = (e) => {
+    if (!dragging) return;
+    const box = ws.getBoundingClientRect();
+    const h = Math.min(box.height - 220, Math.max(80, e.clientY - box.top));
+    ws.style.setProperty('--lecture-h', `${Math.round(h)}px`);
+  };
+  const stop = () => {
+    if (!dragging) return;
+    dragging = false;
+    splitter.classList.remove('is-dragging');
+    document.body.style.userSelect = '';
+    if (editor) editor.refresh();
+  };
+
+  splitter.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    splitter.classList.add('is-dragging');
+    document.body.style.userSelect = 'none';
+    splitter.setPointerCapture(e.pointerId);
+  });
+  splitter.addEventListener('pointermove', move);
+  splitter.addEventListener('pointerup', stop);
+  splitter.addEventListener('pointercancel', stop);
+})();
 
 /* ------------------------------------------------------------- chrome UI */
 
