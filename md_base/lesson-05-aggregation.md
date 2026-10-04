@@ -15,8 +15,6 @@
 
 ## Aggregate functions
 
-![Aggregation](images/lesson05/img-001-001.png)
-
 Aggregate functions perform a calculation over a set of values and return a single value, which is called an aggregate. They are used to analyse and summarise data, grouping it by certain criteria and returning statistical values. For example, we can calculate the sum of all purchases made today, the number of people in a department, or the average height of a population.
 
 The main aggregate functions include:
@@ -29,8 +27,6 @@ The main aggregate functions include:
 | Minimum | `MIN(<field>)` | `SELECT MIN(weight) FROM students` |
 | Maximum | `MAX(<field>)` | `SELECT MAX(weight) FROM students` |
 
-![Aggregate functions](images/lesson05/img-002-002.png)
-
 Example of how aggregate functions work:
 
 ```sql
@@ -41,8 +37,6 @@ SELECT SUM(id), AVG(id), MIN(id), MAX(id)
 | sum | avg | min | max |
 |---|---|---|---|
 | 8 001 | 63.50 | 1 | 126 |
-
-![Result of the aggregate query](images/lesson05/img-002-003.png)
 
 ---
 
@@ -69,8 +63,6 @@ SELECT COUNT(*) AS count_,
 |---|---|---|---|
 | 126 | 126 | 95 | 44 |
 
-![Result of the COUNT query](images/lesson05/img-003-004.png)
-
 Example of counting the number of values in a column using `COUNT`, `SUM` and `CASE`:
 
 ```sql
@@ -81,15 +73,11 @@ SELECT COUNT(1) AS row_cnt,
  WHERE status = 'Alive';
 ```
 
-![Result of the COUNT + CASE query](images/lesson05/img-004-005.png)
-
 In the query above we obtain the field with the number of rows using `COUNT(1)`, and we count by gender by summing the result of the `CASE` expressions. When the gender matches the one we need we put 1, and in the opposite case 0. If we sum up these ones, we get the number of male and female characters.
 
 ---
 
 ## Grouping data
-
-![Grouping](images/lesson05/img-005-006.png)
 
 To compute aggregates over sets of data, the `GROUP BY` clause is used. It lets you specify the grouping field and execute aggregate functions within each group.
 
@@ -121,8 +109,6 @@ We need to count the number of flows for each course:
 | 2 | 1 | 32 | 2024-04-01 |
 | 3 | 1 | 33 | 2024-04-21 |
 
-![Source tables](images/lesson05/img-006-007.png)
-
 To do this we need to write an SQL query that joins the courses and flows tables and aggregates the "flows" field for each of the courses:
 
 ```sql
@@ -135,8 +121,6 @@ SELECT c.id        AS course_id,
  GROUP BY course_id, course_name;
 ```
 
-![The grouping query](images/lesson05/img-006-008.png)
-
 In the query we combine two tables, group the data by `course_id` and `course_name`, and count the number of flows for each course. As a result we get the table we need:
 
 | course_id | course_name | flow_cnt |
@@ -145,13 +129,9 @@ In the query we combine two tables, group the data by `course_id` and `course_na
 | 2 | Data Analyst | 0 |
 | 3 | Start ML | 0 |
 
-![Result of the grouping query](images/lesson05/img-007-009.png)
-
 ---
 
 ## Filtering by aggregates
-
-![Filtering by an aggregate: condition COUNT() > 5](images/lesson05/img-007-010.png)
 
 Sometimes you need to filter data after it has been aggregated. The `HAVING` clause is used for this. It lets you set conditions on aggregated data.
 
@@ -168,8 +148,6 @@ HAVING <condition on the aggregate>
 
 We need to find the courses that have at least one flow.
 
-![Source tables](images/lesson05/img-008-011.png)
-
 To do this we need to write an SQL query that joins the courses and flows tables, aggregates the "flows" field for each of the courses, and applies a filter condition on the aggregated value:
 
 ```sql
@@ -183,15 +161,11 @@ SELECT c.id        AS course_id,
 HAVING COUNT(f.id) > 0;
 ```
 
-![The query with HAVING](images/lesson05/img-009-012.png)
-
 In the query we combine two tables, group the data by `course_id` and `course_name`, count the number of flows for each course and then filter that count. As a result we get the table we need:
 
 | course_id | course_name | flow_cnt |
 |---|---|---|
 | 1 | Data Engineer | 3 |
-
-![Result of the HAVING query](images/lesson05/img-009-013.png)
 
 This query returns only those courses that have at least one flow.
 
@@ -215,8 +189,6 @@ HAVING COUNT(ep.name) > 10
 | Rick Sanchez | 54 |
 | Beth Smith | 52 |
 | Summer Smith | 51 |
-
-![Result of the query](images/lesson05/img-010-014.png)
 
 Filtering data by non-aggregated values can be done either in the `WHERE` block or in the `HAVING` block. For example, the result of the following queries will be the same:
 

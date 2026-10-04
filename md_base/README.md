@@ -17,10 +17,9 @@ English translations of the Russian lesson PDFs in `../pdf_base/`.
 
 - Translation is faithful to the source: the original slide structure, headings, ordering
   and all SQL code are preserved.
-- Images embedded in the PDFs (reference tables, diagrams, query-result screenshots) were
-  extracted to `images/lessonNN/` and are linked from each lesson. Where an image contained
-  a reference table or a result set, its content was also transcribed into a Markdown table
-  next to the image.
+- Images from the PDFs (reference tables, diagrams, query-result screenshots) are not
+  included. Where an image contained a reference table or a result set, its content is
+  transcribed into a Markdown table instead.
 - Sample data values inside SQL string literals and result screenshots are kept in the
   original language, because lengths, positions and outputs in the examples depend on them.
 - One value in Lesson 2 (`sqrt(2) → 4`) is reproduced as printed in the original slide and

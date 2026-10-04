@@ -44,8 +44,6 @@ Let us look at an example. We have users making purchases. For each user the tab
 | 3 | 34 | 2025-05-05 11:39:05 |
 | 4 | 6 | 2025-05-09 14:18:02 |
 
-![Source payments table](images/lesson07/img-003-002.png)
-
 Example of a query with a window function that computes the purchase number for each user in chronological order, and the running total of all purchases for each user:
 
 ```sql
@@ -57,16 +55,6 @@ SELECT user_id,
                               ORDER BY payment_dttm) AS cume_sum
   FROM payments
 ```
-
-![The window-function query](images/lesson07/img-003-003.png)
-
-![Partitioning the data](images/lesson07/img-004-004.png)
-
-![Sorting inside a partition](images/lesson07/img-004-005.png)
-
-![Applying the function inside the partition](images/lesson07/img-005-006.png)
-
-![The sorted partition](images/lesson07/img-005-007.png)
 
 Let us look at the syntax of a window function in more detail. A window function is used with the keyword `OVER`. After `OVER`, the description of the window is given in parentheses. `PARTITION BY` defines the fields for splitting the data into groups. `ORDER BY` sets the sorting order of the data inside each partition.
 
@@ -105,8 +93,6 @@ Analytic functions are divided into three main groups:
 | `MIN()` | `LEAD()` | `ROW_NUMBER()` |
 | `SUM()` | `NTH_VALUE()` | `CUME_DIST()` |
 | | | `PERCENT_RANK()` |
-
-![The three groups of window functions](images/lesson07/img-006-008.png)
 
 ---
 
@@ -154,8 +140,6 @@ Query result:
 | Morty Smith | S01 | 11 |
 | Morty Smith | S02 | 10 |
 
-![Query result](images/lesson07/img-008-009.png)
-
 By wrapping this query in a CTE, we can demonstrate how analytic aggregate functions work:
 
 ```sql
@@ -198,8 +182,6 @@ FROM char_in_episodes;
 | Morty Smith | S03 | 10 | 31 | 10.33 | 10 | 11 |
 | Morty Smith | S04 | 10 | 41 | 10.25 | 10 | 11 |
 | Morty Smith | S05 | 10 | 51 | 10.20 | 10 | 11 |
-
-![Result of the aggregate window functions](images/lesson07/img-009-010.png)
 
 This query shows the cumulative sum (`ep_sum`), average (`ep_avg`), minimum (`ep_min`) and maximum (`ep_max`) over episodes for each character by season.
 
@@ -252,8 +234,6 @@ FROM char_in_episodes;
 | Jerry Smith | S02 | 9 | 11 | 9 | 11 | 6 | 9 |
 | Jerry Smith | S03 | 6 | 11 | 6 | 9 | 8 | 9 |
 | Jerry Smith | S04 | 8 | 11 | 8 | 6 | 10 | 9 |
-
-![Result of the offset functions](images/lesson07/img-011-011.png)
 
 This example uses the functions `FIRST_VALUE`, `LAST_VALUE`, `LAG`, `LEAD` and `NTH_VALUE` to obtain the first (`first`), last (`last`), previous (`prev_season_cnt`), next (`next_season_cnt`) and second (`second_season_cnt`) values within each window's frame.
 
@@ -314,8 +294,6 @@ FROM char_in_episodes;
 | Morty Smith | S04 | 10 | 3 | 1 | 1 | 1 | 0.80 | 0.00 |
 | Morty Smith | S05 | 10 | 4 | 1 | 1 | 2 | 0.80 | 0.00 |
 
-![Result of the ranking functions](images/lesson07/img-013-012.png)
-
 This query shows the differences between `ROW_NUMBER` (column `rn`), `RANK`, `DENSE_RANK`, `NTILE` (column `group_num`), `CUME_DIST` and `PERCENT_RANK`:
 
 - The `ROW_NUMBER` function numbered the rows within each character. And the number 2 passed as an argument to the `NTILE` function made it possible to split the rows inside each partition into two roughly equal parts (an odd number of rows inside a partition affects this) and to number every row according to its group.
@@ -349,8 +327,6 @@ You can also specify row counts:
 
 - `<number of rows> PRECEDING` — defines the number of rows before the current row
 - `<number of rows> FOLLOWING` — defines the number of rows after the current row
-
-![ROWS frame boundaries](images/lesson07/img-015-013.png)
 
 For example, we have a partition of 12 rows. `ROWS` lets us choose the rows whose values we need to aggregate. For example, the current row is number 7; by default we aggregate for it all rows from the first one up to and including it. But you can also choose other rows to aggregate. For example, starting from the third row up to the current one. Starting from one row back up to the current one. Starting from the current one up to the last row in the window. Starting from the current one plus two more rows. Starting from the current one plus one more row. For this we use the `ROWS BETWEEN` notation, then specify the lower boundary, `AND` and the upper boundary.
 
@@ -396,8 +372,6 @@ FROM char_in_episodes
 | Jerry Smith | S04 | 8 | 34 | 18.00 | 34 | 18 |
 | Jerry Smith | S05 | 10 | 44 | 10.00 | 33 | 10 |
 
-![Result of the ROWS frame query](images/lesson07/img-016-014.png)
-
 ### RANGE
 
 Specifies the lower and upper boundary of the window by row values.
@@ -409,8 +383,6 @@ RANGE BETWEEN <lower boundary> AND <upper boundary>
 - `UNBOUNDED PRECEDING` — the window starts at the first value of the group
 - `UNBOUNDED FOLLOWING` — the window ends at the last value of the group
 - `CURRENT ROW` — the window starts or ends at the current value
-
-![RANGE frame boundaries](images/lesson07/img-017-015.png)
 
 > 💡 By default, if we have not specified a frame, `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` is applied: all records from the first row of the window up to the current row.
 
@@ -427,8 +399,6 @@ The current range and everything after it:
 ```sql
 RANGE BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING
 ```
-
-![RANGE frame examples](images/lesson07/img-018-016.png)
 
 Example of a query using the RANGE frame:
 
@@ -469,8 +439,6 @@ FROM char_in_episodes
 | Jerry Smith | S02 | 9 | 23 | 23 | 30.00 |
 | Jerry Smith | S05 | 10 | 33 | 33 | 21.00 |
 | Jerry Smith | S01 | 11 | 44 | 44 | 11.00 |
-
-![Result of the RANGE frame query](images/lesson07/img-019-017.png)
 
 ---
 
@@ -529,8 +497,6 @@ WINDOW w AS (PARTITION BY name ORDER BY season)
 | Morty Smith | S03 | 10 | 31 | 10.33 | 10 | 11 |
 | Morty Smith | S04 | 10 | 41 | 10.25 | 10 | 11 |
 | Morty Smith | S05 | 10 | 51 | 10.20 | 10 | 11 |
-
-![Result of the Window Frame query](images/lesson07/img-021-018.png)
 
 ---
 

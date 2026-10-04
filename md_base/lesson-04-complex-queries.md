@@ -44,8 +44,6 @@ SELECT DISTINCT type
 | Death Star |
 | Arcade |
 
-![Result of the DISTINCT query](images/lesson04/img-002-001.png)
-
 ---
 
 ## Combining queries (UNION and UNION ALL)
@@ -54,8 +52,6 @@ The `UNION` and `UNION ALL` operations are used to combine the results of two or
 
 - `UNION` combines the results, excluding duplicate rows;
 - `UNION ALL` works in the same way as `UNION`, but does not exclude duplicates.
-
-![UNION ALL vs UNION](images/lesson04/img-003-002.png)
 
 Thus `UNION` (unlike `UNION ALL`) performs deduplication.
 
@@ -95,13 +91,9 @@ SELECT name
 | 7+7 Years Old Morty |
 | 80's snake |
 
-![Result of the UNION ALL query](images/lesson04/img-005-003.png)
-
 ---
 
 ## Joining tables (JOIN)
-
-![JOIN enriches rows](images/lesson04/img-006-004.png)
 
 The `JOIN` operation is used to enrich data from one table with data from another. Every row in one table is matched against the second table by some condition, and then the rows are combined. Such a condition is, for example, the equality of values in a certain field (or fields): records matching the value of the field from the first table are looked up in the second table, after which they are combined into the result table.
 
@@ -116,10 +108,6 @@ SELECT a.column1, b.column2
 This query joins the tables `table1` and `table2` on the field `id` from `table1` and the field `table2_id` from `table2`. Note that when joining, tables can be given aliases so that you do not have to write the table names out in full. The `AS` keyword may be omitted here.
 
 ### Main types of JOIN
-
-![Main types of JOIN](images/lesson04/img-007-005.png)
-
-![Types of JOIN](images/lesson04/img-008-006.png)
 
 There are several types of `JOIN` operations, each with its own specifics and applied depending on the task. In SQL, when using the `JOIN` operator the word `INNER` can be omitted, because an inner join (`INNER JOIN`) is performed by default. When using the `LEFT JOIN` and `RIGHT JOIN` operators the word `OUTER` can also be omitted. This simplifies the syntax and makes queries more readable without changing their meaning.
 
@@ -242,8 +230,6 @@ Another example of how FULL JOIN works — joining the courses table with the fl
 | 2 | 1 | 32 | 2024-04-01 |
 | 3 | 1 | 33 | 2024-04-21 |
 
-![Source tables courses and flows](images/lesson04/img-011-007.png)
-
 ```sql
 SELECT c.id         AS course_id,
        c.name       AS course_name,
@@ -262,17 +248,11 @@ SELECT c.id         AS course_id,
 | 2 | Data Analyst | NULL | NULL |
 | 3 | Start ML | NULL | NULL |
 
-![The FULL JOIN query](images/lesson04/img-011-008.png)
-
-![Result of the FULL JOIN query](images/lesson04/img-012-009.png)
-
 The `courses` table is joined with the `flows` table using `FULL JOIN`; values from the `courses` table where there are no matches are automatically filled with `NULL`.
 
 ### Special types of JOIN
 
 - **CROSS JOIN:** a join without a condition, producing the Cartesian product of two tables. It is useful in situations where you need to match every row of one table with every row of another table. However, it should be used with caution because of the possible exponential growth in the number of rows in the result, which can lead to a significant drop in performance.
-
-![CROSS JOIN](images/lesson04/img-012-010.png)
 
 - **SELF JOIN:** joining a table with itself. This is useful when you need to compare rows of the same table or obtain data that is in different rows but related to each other. A self join is often used for working with hierarchical data — for example, to analyse the relationships between employees and their managers within a single table.
 
@@ -292,13 +272,9 @@ SELECT c1.name AS name_1, c2.name AS name_2
 | Rick Sanchez | Beth Smith |
 | Rick Sanchez | Jerry Smith |
 
-![Result of the CROSS JOIN query](images/lesson04/img-013-011.png)
-
 In the query above we output all possible pairwise variations of names.
 
 ### Venn diagrams
-
-![Venn diagrams for JOIN types](images/lesson04/img-014-012.png)
 
 Venn diagrams are often used to explain the different types of JOINs in SQL, because they clearly demonstrate the intersections and unions of sets.
 

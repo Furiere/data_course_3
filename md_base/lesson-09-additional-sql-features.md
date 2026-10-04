@@ -419,8 +419,6 @@ A database and a database management system (DBMS) are two interrelated but diff
 - **A database** is an organized collection of data that is stored and managed in digital form. This is the data itself that is being worked with.
 - **A DBMS** is software that manages the database and provides access to it. A DBMS provides an interface for performing operations on the data, such as creating, reading, updating and deleting. It also takes care of such aspects as data integrity, transaction management, security, access control and query execution.
 
-![Database vs DBMS](images/lesson09/img-014-002.png)
-
 An example of a DBMS is PostgreSQL, which we have already worked with. A DBMS frees the user from having to deal with low-level data management tasks, allowing them to focus on analysing and processing the data.
 
 ### How is a "many-to-many" relationship implemented in SQL?
@@ -436,8 +434,6 @@ Here is what the different types of relationships look like:
 **Example:**
 
 Suppose we have the tables `students`, `courses` and `flows`. Each student can enrol on several courses and belong to different flows. To implement the "many-to-many" relationship, the table `flow_student` is created, which contains the columns `student_id` and `flow_id` — foreign keys linking students and flows.
-
-![Many-to-many via a junction table](images/lesson09/img-015-003.png)
 
 Thus a "many-to-many" relationship is organized with an intermediate table storing all possible combinations of records between the two main tables.
 
@@ -493,8 +489,6 @@ This query uses the `DENSE_RANK()` function, which assigns ranks to salaries, an
 ### How does `JOIN` differ from `UNION`?
 
 `JOIN` and `UNION` are two different operations used in SQL for working with several tables, but their application and results differ.
-
-![UNION adds rows, JOIN enriches rows](images/lesson09/img-017-004.png)
 
 - **`JOIN`:** combines rows from two or more tables based on a logical condition defined via the `ON` operator. `JOIN` works with horizontal combination of data, enriching rows from one table with information from another.
   - Example of using `JOIN`: joining the `Employees` and `Departments` tables to obtain information about employees and their departments:

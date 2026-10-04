@@ -1,6 +1,6 @@
 # Lesson 8. DML & DDL
 
-*Source: «Урок 8. DML&DDL.pdf» — translated from Russian. Data values inside SQL examples and screenshots are kept as they appear in the original.*
+*Source: «Урок 8. DML&DDL.pdf» — translated from Russian. Data values inside SQL examples are kept as they appear in the original.*
 
 ## Contents
 
@@ -33,8 +33,6 @@ CREATE TABLE my_table (
 |---|---|---|---|
 | 1 | Иван | 2000-01-01 | male |
 | 2 | Марья | 1997-03-18 | female |
-
-![The created table](images/lesson08/img-002-002.png)
 
 The syntax differs between PostgreSQL and ClickHouse.
 
@@ -88,8 +86,6 @@ RENAME TO people;
 | 1 | Иван | 2000-01-01 | male |
 | 2 | Марья | 1997-03-18 | female |
 
-![The renamed table](images/lesson08/img-003-003.png)
-
 Most of the time renaming does not take long, because in this case a new table is not created and the data is not copied into it; one name is simply replaced by another by the DBMS's internal means.
 
 Adding a new field:
@@ -105,8 +101,6 @@ ADD COLUMN is_pet boolean;
 |---|---|---|---|---|
 | 1 | Иван | 2000-01-01 | male | NULL |
 | 2 | Марья | 1997-03-18 | female | NULL |
-
-![The new column](images/lesson08/img-004-004.png)
 
 In all the rows that we have added, this field will take the value `NULL`.
 
@@ -125,8 +119,6 @@ RENAME TO with_pet;
 | 1 | Иван | 2000-01-01 | male | NULL |
 | 2 | Марья | 1997-03-18 | female | NULL |
 
-![The renamed column](images/lesson08/img-004-005.png)
-
 Setting a default value for a field:
 
 ```sql
@@ -134,8 +126,6 @@ ALTER TABLE people
 ALTER COLUMN with_pet
 SET DEFAULT False;
 ```
-
-![The default value](images/lesson08/img-005-006.png)
 
 > 💡 The default value will only work for new rows. All rows that were added earlier and have the value `NULL` will remain unchanged.
 
@@ -152,8 +142,6 @@ TRUNCATE TABLE people;
 | id | name | birth_date | sex |
 |---|---|---|---|
 | *(empty)* | | | |
-
-![The truncated table](images/lesson08/img-005-007.png)
 
 `TRUNCATE TABLE` deletes all rows from a table very quickly. Much faster than the `DELETE FROM table` operation.
 
@@ -172,8 +160,6 @@ DROP COLUMN with_pet;
 |---|---|---|---|
 | 1 | Иван | 2000-01-01 | male |
 | 2 | Марья | 1997-03-18 | female |
-
-![The table after dropping a column](images/lesson08/img-006-008.png)
 
 Dropping a table:
 
@@ -207,8 +193,6 @@ VALUES (1, 'Иванов Иван Иванович', date '2000-01-01', 'male'),
 |---|---|---|---|
 | 1 | Иванов Иван Иванович | 2000-01-01 | male |
 | 2 | Петрова Инна Николаевна | 1998-03-18 | female |
-
-![The inserted rows](images/lesson08/img-007-009.png)
 
 - **Rows from a query:**
 
@@ -247,8 +231,6 @@ WHERE id = 1;
 | 1 | Тюленев Петр Алексеевич | 2000-01-01 | male |
 | 2 | Петрова Инна Николаевна | 1998-03-18 | female |
 
-![The updated row](images/lesson08/img-008-010.png)
-
 ### DELETE
 
 Deleting data:
@@ -257,8 +239,6 @@ Deleting data:
 DELETE FROM people
 WHERE id > 200;
 ```
-
-![DELETE FROM people; → add a condition → use TRUNCATE](images/lesson08/img-008-011.png)
 
 > 💡 It is important to remember that `DELETE` must always have a condition; otherwise it is more sensible to use `TRUNCATE`.
 

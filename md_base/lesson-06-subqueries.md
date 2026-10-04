@@ -94,8 +94,6 @@ ORDER BY 1
 | S04 | 177 |
 | S05 | 162 |
 
-![Result of the FROM subquery](images/lesson06/img-004-002.png)
-
 ---
 
 ## Subqueries in JOIN
@@ -135,8 +133,6 @@ ORDER BY 1
 | S03 | 10 | 195 |
 | S04 | 10 | 177 |
 | S05 | 10 | 162 |
-
-![Result of the JOIN subquery](images/lesson06/img-005-003.png)
 
 ---
 
@@ -192,8 +188,6 @@ GROUP BY epis_char.season
 | S03 | 10 | 51 | 195 |
 | S04 | 10 | 51 | 177 |
 | S05 | 10 | 51 | 162 |
-
-![Result of the SELECT subquery](images/lesson06/img-006-004.png)
 
 ---
 
@@ -304,8 +298,6 @@ SELECT *
 | 83 | Cronenberg Morty | | Cronenberg | | Male | 12 |
 | 92 | Davin | Dead | Human | | Male | 1 |
 
-![Result of the WHERE subquery](images/lesson06/img-009-005.png)
-
 ---
 
 ## Subqueries in HAVING
@@ -335,8 +327,6 @@ HAVING COUNT(1) < (SELECT COUNT(1) FROM episodes WHERE episode_id like 'S01%');
 | S04 | 10 |
 | S02 | 10 |
 | S05 | 10 |
-
-![Result of the HAVING subquery](images/lesson06/img-010-006.png)
 
 ---
 
@@ -376,8 +366,6 @@ SELECT *
 | 3 | Summer Smith | Alive | Human | | Female | 20 |
 | 5 | Jerry Smith | Alive | Human | | Male | 20 |
 | 180 | Jessica | Alive | Human | Time God | Female | 20 |
-
-![Result of the ORDER BY subquery](images/lesson06/img-012-007.png)
 
 ---
 
@@ -468,8 +456,6 @@ ORDER BY 1;
 | S03 | 10 | 51 | 195 |
 | S04 | 10 | 51 | 177 |
 | S05 | 10 | 51 | 162 |
-
-![Result of the CTE query](images/lesson06/img-014-008.png)
 
 ---
 

@@ -51,8 +51,6 @@ SELECT * FROM characters
 | 2 | Morty Smith | Alive | Human | Male |
 | 3 | Summer Smith | Alive | Human | Female |
 
-![Result of the filtering query](images/lesson03/img-003-001.png)
-
 If several conditions are used in the filter, parentheses can be used to state the order of operations explicitly (without them the DBMS will execute the operations according to the precedence rules we looked at in the previous lesson).
 
 Using parentheses is important for executing queries correctly and getting the expected results; it also improves readability. So it is better to always use them, even when the order of execution would be the same with and without them.
@@ -241,8 +239,6 @@ Sorting data lets you order rows in ascending or descending order. Sorting is do
 - `ASC` (used by default) — sorting in ascending order
 - `DESC` — sorting in descending order
 
-![Ascending and descending sorting](images/lesson03/img-009-002.png)
-
 General form of a query with sorting:
 
 ```sql
@@ -275,8 +271,6 @@ General form of a query with a limited result set:
 
 For example, `LIMIT 10 OFFSET 10` will select 10 rows starting from the 11th.
 
-![How LIMIT and OFFSET work](images/lesson03/img-010-003.png)
-
 Example of using sorting and limiting the result set:
 
 ```sql
@@ -292,8 +286,6 @@ SELECT *
 | 23 | Earth (C-500A) | Planet | Dimension C-500A |
 | 74 | Earth (Chair Dimension) | Planet | Chair Dimension |
 | 59 | Earth (D716) | Planet | Dimension D716 |
-
-![Result of the sorting query](images/lesson03/img-011-004.png)
 
 ---
 
@@ -319,8 +311,6 @@ Example of writing an SQL query using the "corridor" rule:
    WHERE type in ('TV', 'Fantasy town', 'Planet')
 ORDER BY name LIMIT 10 OFFSET 10;
 ```
-
-![The "corridor" rule](images/lesson03/img-012-005.png)
 
 ---
 
@@ -402,8 +392,6 @@ SELECT id, name, type,
 | 10 | Venzenulon 7 | Planet | unknown |
 | 11 | Bepis 9 | Planet | unknown |
 | 12 | Cronenberg Earth | Planet | Cronenberg Dimension |
-
-![Result of the COALESCE query](images/lesson03/img-015-006.png)
 
 ---
 

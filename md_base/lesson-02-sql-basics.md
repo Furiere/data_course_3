@@ -69,8 +69,6 @@ Numeric types have both operators and functions. Operators perform mathematical 
 | Exponentiation | `^` | `3 ^ 2 → 9`  ·  `3 ^ 2.0 → 9.00` |
 | Absolute value | `@` | `@ -3 → 3`  ·  `@ -3.0 → 3.0` |
 
-![Numeric operators](images/lesson02/img-003-001.png)
-
 Note that when you use only integer values in operators, the result will be an integer. If one of the arguments is fractional, the result will be fractional too.
 
 ### Functions
@@ -86,8 +84,6 @@ Most DBMSs implement the following functions for performing various calculations
 | Nearest smaller integer | `floor(number)` | `floor(1.54) → 1`  ·  `floor(27.3) → 27` |
 | Exponentiation | `power(number, power)` | `power(3, 3) → 27`  ·  `power(1.5, 3) → 3.38` |
 | Square root | `sqrt(number)` | `sqrt(2) → 4`* · `sqrt(1.5) → 1.22` |
-
-![Numeric functions](images/lesson02/img-004-002.png)
 
 > \* Reproduced as printed in the original slide; mathematically `sqrt(2) ≈ 1.41`.
 
@@ -126,8 +122,6 @@ Character types include any characters, strings, letters or even sentences. Just
 | Upper case | `upper(text)` | `upper('текст') → 'ТЕКСТ'`  ·  `upper('123') → '123'` |
 | Lower case | `lower(text)` | `lower('ТЕКСТ') → 'текст'`  ·  `lower('123') → '123'` |
 
-![String functions](images/lesson02/img-005-003.png)
-
 > The Russian sample strings above are kept as they appear in the original slide, because the returned lengths and positions depend on them.
 
 Note that strings must be enclosed in quotes, which may be either single or double. Also remember that spaces are counted when computing the length of a string.
@@ -149,8 +143,6 @@ SELECT upper(name),                    -- name in upper case
 | MORTY SMITH | 11 | Male Human | 7 |
 | SUMMER SMITH | 12 | Female Human | 8 |
 | BETH SMITH | 10 | Female Human | 6 |
-
-![Result of the string-function query](images/lesson02/img-006-004.png)
 
 ---
 
@@ -175,8 +167,6 @@ SQL has four date and time types:
 | Difference | `date - date` | `date '2001-10-01' - date '2001-09-28' → 3` |
 | Part of a date | `extract(part from date)` | `extract(year from date '2001-10-01') → 2001` |
 
-![Date and time functions](images/lesson02/img-007-005.png)
-
 In the examples above, note that `DATE` is a date constructor which explicitly states that the string `'2001-09-28'` should be interpreted as a date.
 
 Example of using date and time functions:
@@ -193,8 +183,6 @@ SELECT name,                              -- name
 | Lawnmower Dog | 2013 |
 | Anatomy Park | 2013 |
 | M. Night Shaym-Aliens! | 2014 |
-
-![Result of the date query](images/lesson02/img-008-006.png)
 
 ---
 
@@ -220,8 +208,6 @@ This type is most often described as `Boolean` or `Bool`. Inside the database it
 | Less than | `<` | `5 < 5 → false`  ·  `5 < 7 → true` |
 | Less than or equal | `<=` | `5 <= 5 → true`  ·  `5 <= 7 → true` |
 | Between | `BETWEEN` | `5 BETWEEN 3 AND 7 → true`  ·  `3 BETWEEN 5 AND 7 → false` |
-
-![Boolean and comparison operators](images/lesson02/img-009-007.png)
 
 In SQL, **operator precedence** for logical operations determines the order in which these operations are executed. Knowing operator precedence helps you build queries correctly and avoid logic errors.
 
@@ -267,8 +253,6 @@ SELECT name,
 | Citadel of Ricks | not Earth | false | false | 0 |
 | Worldender's lair | not Earth | true | false | 1 |
 
-![Result of the CASE query](images/lesson02/img-011-008.png)
-
 ---
 
 ## Type conversion
@@ -292,8 +276,6 @@ SELECT
 | result_1 | result_2 |
 |---|---|
 | 123 | 123 |
-
-![Result of the conversion query](images/lesson02/img-012-009.png)
 
 ---
 
