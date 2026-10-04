@@ -122,10 +122,6 @@ Three markers control it, in the markdown itself:
 `RAISE NOTICE` output is captured too, so `DO` blocks and procedures show what
 they actually printed.
 
-Images are not generated. Each one is marked with a `🖼️ Placeholder` line naming
-the path to drop the file at — see [`images/README.md`](images/README.md), or
-`grep -n '🖼️' lecture-*.md` for the outstanding list.
-
 ## Adding an example query
 
 Edit [`docs/examples.json`](docs/examples.json) — sections map to curriculum

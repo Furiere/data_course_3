@@ -24,8 +24,6 @@ Rather than mutate `tracks` and `artists`, most of this lecture builds something
 new on top of them — a `playlists` table, the feature every music service has and
 this dataset lacks.
 
-> 🖼️ *Placeholder — `images/lecture-02/00-playground.png` (screenshot of the playground)*
-
 ---
 
 ## 2.1 Creating and updating tables
@@ -90,8 +88,6 @@ SELECT id, name, owner, is_public FROM playlists ORDER BY id;
 - `owner` carries a `NOT NULL` constraint;
 - `is_public` and `created_at` have `DEFAULT`s, so the `INSERT` did not have to supply them;
 - the table-level `UNIQUE` constraint spans **two** columns: one owner may not have two playlists with the same name, but two owners may.
-
-> 🖼️ *Placeholder — `images/lecture-02/2-1-create-table.png` (screenshot of the result)*
 
 > 💡 DDL syntax differs considerably between DBMSs — ClickHouse, for example, additionally requires a table engine, a sort key and `ON CLUSTER` for a distributed rollout. Always consult the documentation of the system you are working with. Everything in this course is PostgreSQL.
 
@@ -364,8 +360,6 @@ SELECT pt.position, t.name, t.popularity, round(t.tempo::numeric, 0) AS bpm
 
 The fields selected in `SELECT` must match, in order and in type, the fields listed for the target table. If a field has no source, put something explicit — a constant, or `NULL` — in its place, as we did with the literal `1` for `playlist_id`.
 
-> 🖼️ *Placeholder — `images/lecture-02/2-1-insert-select.png` (screenshot of the result)*
-
 **`ON CONFLICT`** handles the case where the row is already there. Without it, re-running the insert above would fail on the primary key:
 
 ```sql
@@ -471,8 +465,6 @@ SELECT id, name, owner FROM playlists ORDER BY id;
 | 2 | Loud and Fast | denis |
 | 4 | Added Later | denis |
 <!--/result-->
-
-> 🖼️ *Placeholder — `images/lecture-02/2-1-delete.png` (diagram: `DELETE FROM t;` → add a condition → or use TRUNCATE)*
 
 > 💡 `DELETE` should always have a condition. If you mean to delete everything, `TRUNCATE` is the right statement.
 
@@ -688,8 +680,6 @@ SELECT 'materialized',    tracks FROM mv_decade_counts WHERE decade = 2020;
 | view | 2069 |
 | materialized | 2069 |
 <!--/result-->
-
-> 🖼️ *Placeholder — `images/lecture-02/2-2-matview-stale.png` (screenshot of the stale-vs-refreshed comparison)*
 
 In PostgreSQL the refresh is explicit — `REFRESH MATERIALIZED VIEW`, run manually or on a schedule. Other DBMSs differ substantially: some refresh in real time, some by a trigger, and some have no such functionality at all. Always consult the documentation.
 
@@ -913,8 +903,6 @@ SELECT * FROM decade_summary ORDER BY decade;
 <!--/result-->
 
 `GET DIAGNOSTICS … = ROW_COUNT` reads how many rows the previous statement touched; `RAISE NOTICE` prints a message to the client — the closest thing PL/pgSQL has to `print`. The playground shows notices above the result grid.
-
-> 🖼️ *Placeholder — `images/lecture-02/2-3-raise-notice.png` (screenshot showing the NOTICE above the results)*
 
 ### Parameters
 

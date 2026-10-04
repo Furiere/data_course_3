@@ -18,8 +18,6 @@ Spotify catalogue, 1922 to 2021. Open the **[live playground](https://furiere.gi
 and run them as you read. It is a real PostgreSQL engine in your browser: nothing
 to install, and a page refresh gives you a clean database back.
 
-> 🖼️ *Placeholder — `images/lecture-01/00-playground.png` (screenshot of the playground)*
-
 ---
 
 ## 0. Preliminaries
@@ -231,8 +229,6 @@ SELECT name,
 Note `explicit::int` — a boolean cast to an integer gives 1 or 0, which is handy
 for summing later.
 
-> 🖼️ *Placeholder — `images/lecture-01/00-case.png` (screenshot of the result)*
-
 ### Type conversion
 
 Conversion can be **implicit** (the DBMS decides) or **explicit** (you decide), using `::` or `CAST`:
@@ -330,8 +326,6 @@ SELECT name, popularity, release_date, explicit
 | SexyBack (feat. Timbaland) | 81 | 2006-09-12 | true |
 | Flashing Lights | 78 | 2007-09-11 | true |
 <!--/result-->
-
-> 🖼️ *Placeholder — `images/lecture-01/1-1-where.png` (screenshot of the result)*
 
 A `boolean` column needs no comparison — `WHERE explicit` is already a condition.
 `WHERE explicit = true` works but is noise.
@@ -544,8 +538,6 @@ SELECT name, duration_ms, duration_ms / 60000.0 AS minutes
 
 `ORDER BY` orders rows by one or more columns; `ASC` (the default) ascending, `DESC` descending.
 
-> 🖼️ *Placeholder — `images/lecture-01/1-1-sorting.png` (diagram: ascending vs descending)*
-
 <!--noexec-->
 ```sql
    SELECT *
@@ -593,8 +585,6 @@ SELECT name,
 ```
 
 `LIMIT 5 OFFSET 5` selects 5 rows starting from the 6th — the second page:
-
-> 🖼️ *Placeholder — `images/lecture-01/1-1-limit-offset.png` (diagram: how LIMIT and OFFSET work)*
 
 ```sql
   SELECT name, popularity
@@ -705,8 +695,6 @@ SELECT id, name, popularity
 | 1zMPEr35vNUdXwgtAVaPq0 | "Autoportrait, je ne comprends pas..." | 0 |
 <!--/result-->
 
-> 🖼️ *Placeholder — `images/lecture-01/1-1-nulls.png` (screenshot of the result)*
-
 **An empty array is not `NULL`.** `artists.genres` is a `text[]`, and thousands of
 artists have no tags. The array is empty (`{}`), but `array_length` of an empty
 array returns `NULL` — a distinction that trips people up:
@@ -743,8 +731,6 @@ not `NULL`. The gap between the two columns *is* the number of untagged artists.
 
 ## 1.2 Aggregate functions
 
-> 🖼️ *Placeholder — `images/lecture-01/1-2-aggregation.png` (diagram: many rows collapse to one value)*
-
 Aggregate functions perform a calculation over a set of values and return a single value — the aggregate. They are used to analyse and summarise data: the sum of today's purchases, the number of people in a department, the average length of a song.
 
 | Purpose | Function | Example |
@@ -769,8 +755,6 @@ SELECT count(*)                             AS tracks,
 |---|---|---|---|---|
 | 60000 | 27.60 | 1900-01-01 | 2021-04-16 | 3827 |
 <!--/result-->
-
-> 🖼️ *Placeholder — `images/lecture-01/1-2-aggregates.png` (screenshot of the result)*
 
 ### Specifics of COUNT
 
@@ -839,8 +823,6 @@ SELECT count(*)                                AS row_cnt,
 
 ### Grouping data (GROUP BY)
 
-> 🖼️ *Placeholder — `images/lecture-01/1-2-grouping.png` (diagram: rows split into groups, one aggregate per group)*
-
 `GROUP BY` lets you specify the grouping field and execute aggregate functions within each group.
 
 <!--noexec-->
@@ -889,8 +871,6 @@ here. You may also refer to it by its output position, `GROUP BY 1`, which is
 shorter but harder to read when the query grows.
 
 ### Filtering by aggregates (HAVING)
-
-> 🖼️ *Placeholder — `images/lecture-01/1-2-having.png` (diagram: groups filtered by their aggregate)*
 
 Sometimes you need to filter data *after* it has been aggregated. That is what `HAVING` is for.
 
@@ -999,8 +979,6 @@ Data is divided into **partitions** by a field or fields; inside each partition 
 
 First the data is split into partitions, then sorted, and only then is the function applied to each record inside the partition.
 
-> 🖼️ *Placeholder — `images/lecture-01/1-3-partitioning.png` (diagram: partition → sort → apply)*
-
 ### The base query for the examples
 
 Everything below builds on the same small result: how many tracks two artists
@@ -1045,8 +1023,6 @@ SELECT * FROM artist_decade ORDER BY artist, decade;
 | `MIN()` | `LEAD()` | `NTILE()` |
 | `SUM()` | `NTH_VALUE()` | `CUME_DIST()` |
 | | | `PERCENT_RANK()` |
-
-> 🖼️ *Placeholder — `images/lecture-01/1-3-three-groups.png` (diagram: the three groups of window functions)*
 
 ### Aggregate window functions
 
@@ -1128,8 +1104,6 @@ SELECT artist,
 "What share of the total does this row represent" is one of the most common
 questions in analytics, and this is the shape of the answer.
 
-> 🖼️ *Placeholder — `images/lecture-01/1-3-aggregate-windows.png` (screenshot of the result)*
-
 ### Offset functions
 
 Offset functions reach into neighbouring rows:
@@ -1181,8 +1155,6 @@ WINDOW w AS (PARTITION BY artist ORDER BY decade)
 value. Note the `NULL` in the first row of each partition — there is no previous
 row, so the difference is unknown, not zero.
 
-> 🖼️ *Placeholder — `images/lecture-01/1-3-offset.png` (screenshot of the result)*
-
 ### Ranking functions
 
 - `ROW_NUMBER` — the row number inside the partition
@@ -1232,8 +1204,6 @@ WINDOW w AS (ORDER BY popularity DESC);
 - `ROW_NUMBER` numbers every row, breaking ties arbitrarily; `NTILE(2)` splits the window into two roughly equal halves.
 - Where two tracks share a popularity score they get the same `RANK` and the same `DENSE_RANK`. The row after a tie is where they diverge: `RANK` skips a number, `DENSE_RANK` does not.
 - `CUME_DIST` shows the share of rows less than **or equal to** the current row; `PERCENT_RANK` the share of rows strictly less than it. Hence the last value of both is always 1, while the first value is 0 for `PERCENT_RANK` but non-zero for `CUME_DIST`.
-
-> 🖼️ *Placeholder — `images/lecture-01/1-3-ranking.png` (screenshot of the result)*
 
 **The most common use of `ROW_NUMBER`: top-N per group.** Rank inside each
 partition, then filter on the rank in an outer query — you cannot filter on a
@@ -1303,8 +1273,6 @@ ROWS BETWEEN <lower boundary> AND <upper boundary>
 - `CURRENT ROW` — the window starts or ends at the current row
 - `<n> PRECEDING` / `<n> FOLLOWING` — n rows before / after the current row
 
-> 🖼️ *Placeholder — `images/lecture-01/1-3-rows-frame.png` (diagram: ROWS frame boundaries)*
-
 ```sql
 WITH artist_decade AS (
     SELECT a.name AS artist,
@@ -1348,8 +1316,6 @@ window — the standard smoothing trick for a noisy time series.
 RANGE BETWEEN <lower boundary> AND <upper boundary>
 ```
 
-> 🖼️ *Placeholder — `images/lecture-01/1-3-range-frame.png` (diagram: RANGE frame boundaries)*
-
 > 💡 If no frame is specified, `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW` applies: all records from the first row of the window up to the current one.
 
 The difference shows up on ties. Ordering by `track_cnt`, `ROWS` treats two equal
@@ -1389,8 +1355,6 @@ SELECT artist,
 | David Bowie | 2010 | 8 | 18 | 18 |
 | David Bowie | 1970 | 14 | 32 | 32 |
 <!--/result-->
-
-> 🖼️ *Placeholder — `images/lecture-01/1-3-frames.png` (screenshot of the result)*
 
 ### WINDOW — a named window
 
@@ -1859,8 +1823,6 @@ SELECT min(r.depth) AS hops, a.name
 
 The structure is always the same: a **base case** (the starting rows), `UNION ALL`, and a **recursive case** that joins the CTE back to itself. Without a stop condition — here `depth < 2` — it runs until it exhausts the graph, or forever if the graph has cycles.
 
-> 🖼️ *Placeholder — `images/lecture-01/1-4-recursive.png` (screenshot of the result)*
-
 ### Check yourself
 
 **What is the difference between correlated and non-correlated subqueries?** — non-correlated ones can run independently of the outer query; correlated ones depend on data from it.
@@ -1915,8 +1877,6 @@ SELECT DISTINCT time_signature
 
 - `UNION` combines the results, excluding duplicate rows;
 - `UNION ALL` does the same but keeps duplicates.
-
-> 🖼️ *Placeholder — `images/lecture-01/1-5-union.png` (diagram: UNION vs UNION ALL)*
 
 Deduplication costs extra resources and time, so `UNION ALL` works faster.
 
@@ -1990,8 +1950,6 @@ SELECT count(*) AS with_union FROM (
 
 ### JOIN
 
-> 🖼️ *Placeholder — `images/lecture-01/1-5-join-concept.png` (diagram: JOIN enriches rows horizontally)*
-
 `JOIN` enriches data from one table with data from another — a **horizontal** combination. Every row in one table is matched against the second by some condition, and matching rows are combined.
 
 <!--noexec-->
@@ -2002,8 +1960,6 @@ SELECT a.column1, b.column2
 ```
 
 Tables can be given aliases so that you do not have to write their names out in full; `AS` may be omitted here.
-
-> 🖼️ *Placeholder — `images/lecture-01/1-5-join-types.png` (diagram: the main types of JOIN)*
 
 `INNER` may be omitted — an inner join is performed by default. `OUTER` may be omitted in `LEFT JOIN` and `RIGHT JOIN`.
 
@@ -2147,8 +2103,6 @@ SELECT r.release_id, r.title, l.label_name
 | NULL | NULL | Sub Pop |
 <!--/result-->
 
-> 🖼️ *Placeholder — `images/lecture-01/1-5-full-join.png` (screenshot of the result)*
-
 ### Joins on the real data
 
 The many-to-many between tracks and artists is what `track_artists` exists for.
@@ -2186,8 +2140,6 @@ the standard way to present a many-to-many to a human reader.
 ### Special types of JOIN
 
 **`CROSS JOIN`** — a join without a condition, producing the Cartesian product of two tables. Useful when every row of one table must be matched with every row of another, but dangerous: the row count grows multiplicatively.
-
-> 🖼️ *Placeholder — `images/lecture-01/1-5-cross-join.png` (diagram: CROSS JOIN)*
 
 ```sql
 WITH top3 AS (
@@ -2264,11 +2216,7 @@ SELECT t.name, t.release_date, t.popularity
 
 The same logic can be expressed with `NOT EXISTS`. The pattern is worth memorising: **LEFT JOIN, then `WHERE right_table.key IS NULL`**.
 
-> 🖼️ *Placeholder — `images/lecture-01/1-5-anti-join.png` (screenshot of the result)*
-
 ### Venn diagrams
-
-> 🖼️ *Placeholder — `images/lecture-01/1-5-venn.png` (diagram: Venn diagrams for the JOIN types)*
 
 Venn diagrams are often used to explain joins because they show intersections and unions clearly. They do not, however, convey all the nuances of joins in relational databases — in particular what happens when values in a table repeat. A join between a table of 60,000 tracks and a table of 74,624 credits returns more than 60,000 rows, which no Venn diagram will tell you.
 
@@ -2400,8 +2348,6 @@ This explains several things we have already met:
 - why filtering in `WHERE` is cheaper than the same filter in `HAVING`.
 
 To simplify the picture: imagine working with two large stacks of documents. First we filter out the unnecessary pages, then combine the stacks, group them by certain features, mark the important elements, and finally order and shorten them as needed.
-
-> 🖼️ *Placeholder — `images/lecture-01/1-6-execution-order.png` (diagram: the order of execution)*
 
 ### The execution plan
 
