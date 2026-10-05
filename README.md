@@ -122,6 +122,34 @@ Three markers control it, in the markdown itself:
 `RAISE NOTICE` output is captured too, so `DO` blocks and procedures show what
 they actually printed.
 
+## Slides
+
+Each lecture also ships as a slide deck in [`slides/`](slides/), as `.pptx` and
+`.pdf`, built on the template in `pptx_template/`. The decks are generated from
+the lecture markdown, so **edit the lecture and rebuild; never edit the deck**:
+
+```bash
+pip install -r scripts/slides/requirements.txt   # python-pptx, Pygments, Pillow
+npm run slides        # rebuild both decks and export PDFs
+```
+
+How the markdown maps onto slides:
+
+| Markdown | Slide |
+| --- | --- |
+| `# Lecture N. …` | title slide |
+| `## Contents` | agenda |
+| `## 1.1 …` | section divider, listing its subtopics |
+| `###` / `####` | content slides titled with the heading, the parent section shown above it |
+| ` ```sql ` + result | the code and its result, rendered as images; the SQL goes in the speaker notes for copy-paste |
+| tables | native PowerPoint tables, continued on the next slide if long |
+| prose, lists, `>` notes | text slides; a short paragraph before or after an example goes on that example's slide |
+
+Rendering needs Google Chrome (set `CHROME_PATH` if it is not in `/Applications`).
+The PDF export drives Microsoft PowerPoint through AppleScript, so it is macOS
+only; run `python3 scripts/slides/build_slides.py` without `--pdf` elsewhere.
+The example images are cached in `build/slides/`.
+
 ## Adding an example query
 
 Edit [`docs/examples.json`](docs/examples.json) — sections map to curriculum
@@ -149,4 +177,7 @@ scripts/
   schema.sql          the DDL, single source of truth
   build_db.mjs        compress + verify -> docs/data/
   build_lectures.mjs  run every lecture example -> result tables + docs/lectures/
+  slides/             lecture markdown -> slides/*.pptx + *.pdf
+slides/               the generated decks
+pptx_template/        the slide template
 ```

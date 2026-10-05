@@ -8,7 +8,8 @@
     "build": "node scripts/build_db.mjs",
     "serve": "python3 -m http.server 8099 --directory docs",
     "lectures": "node scripts/build_lectures.mjs",
-    "check": "node scripts/build_lectures.mjs --check"
+    "check": "node scripts/build_lectures.mjs --check",
+    "slides": "python3 scripts/slides/build_slides.py --pdf"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,3 @@
+python-pptx>=1.0
+Pygments>=2.17
+Pillow>=10
