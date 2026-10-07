@@ -18,7 +18,7 @@ WebAssembly) running in the browser against a sample of the Spotify dataset.
 Nothing is installed and no query leaves the machine, so students can follow a
 live demo and then experiment on the same data.
 
-**Both lectures are built into the site.** The reading pane sits above the
+**Both lectures and both homeworks are built into the site.** The reading pane sits above the
 editor, and every SQL block in the text has a **▶ Run** button that drops the
 query into the editor below and executes it — so a student reads a paragraph and
 runs its example without leaving the page or copying anything. The sidebar
@@ -107,7 +107,7 @@ npm run check         # verify without rewriting — fails if anything is stale 
 `npm run lectures` also copies the finished markdown into `docs/lectures/` with an
 `index.json`, which is what the site's reading pane fetches. The site is served
 from `docs/`, so a copy is the only way the browser can reach the files —
-**edit the lectures at the repo root, never the copies**, and rerun the command.
+**edit the lectures at the repo root (and the homework in `homework/`), never the copies**, and rerun the command.
 `npm run check` fails if the copies have drifted.
 
 That is 112 SQL examples across the two lectures, all executed on every run. A
@@ -119,6 +119,7 @@ Three markers control it, in the markdown itself:
 | Marker | Effect |
 | --- | --- |
 | `<!--noexec-->` before a block | it is syntax or a deliberate error, so don't run it |
+| `<!--broken-->` before a block | a homework query with deliberate bugs: the build skips it, the site still gives it a Run button |
 | `<!--result-->…<!--/result-->` after a block | regenerate the table in between |
 | `<!--result:20-->` | same, but show up to 20 rows (default 8) |
 

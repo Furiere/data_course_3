@@ -477,6 +477,7 @@ kbd {
   border-top: 1px solid var(--border);
 }
 .sql-bar .note { font-size: 0.78em; color: var(--text-dim); }
+.sql-bar .note-broken { margin-left: auto; color: var(--warn); }
 .sql-bar .btn { font-size: 0.8em; padding: 0.25em 0.7em; }
 
 .editor-wrap {

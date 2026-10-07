@@ -8,6 +8,8 @@
  *
  * Markers, placed in the markdown:
  *   <!--noexec-->              before a block that is syntax, not a runnable query
+ *   <!--broken-->              before a homework block with deliberate bugs: not
+ *                              run here, but the site still gives it a Run button
  *   <!--result-->…<!--/result--> after a block; the contents are regenerated
  *   <!--result:20-->           same, but showing up to 20 rows (default 8)
  *
@@ -16,14 +18,18 @@
  */
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openDb, toMarkdown } from './run_sql.mjs';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
-const LECTURES = [
-  'lecture-01-sql-basics.md',
-  'lecture-02-ddl-dml-procedures-variables.md',
+// Published in this order; `section` groups them in the site's sidebar.
+// The homework answer keys are deliberately left out: the site is for students.
+const PAGES = [
+  { path: 'lecture-01-sql-basics.md',                   section: 'Lectures' },
+  { path: 'lecture-02-ddl-dml-procedures-variables.md', section: 'Lectures' },
+  { path: 'homework/homework-01-sql-basics.md',         section: 'Homework' },
+  { path: 'homework/homework-02-ddl-dml.md',            section: 'Homework' },
 ];
 
 const DEFAULT_ROWS = 8;
@@ -40,6 +46,7 @@ function findBlocks(md) {
       start: m.index,
       end: m.index + m[0].length,
       noexec: /<!--noexec-->\s*$/.test(before),
+      broken: /<!--broken-->\s*$/.test(before),
     });
   }
   return blocks;
@@ -59,7 +66,7 @@ async function processFile(file, check) {
   const patches = [];
 
   for (const block of blocks) {
-    if (block.noexec) continue;
+    if (block.noexec || block.broken) continue;
 
     let results;
     const notices = [];
@@ -134,8 +141,9 @@ async function publish(check) {
 
   const index = [];
   let stale = 0;
-  for (const file of LECTURES) {
-    const md = await readFile(join(ROOT, file), 'utf8');
+  for (const { path, section } of PAGES) {
+    const file = basename(path);
+    const md = await readFile(join(ROOT, path), 'utf8');
     if (check) {
       const published = await readFile(join(dir, file), 'utf8').catch(() => null);
       if (published !== md) stale++;
@@ -143,7 +151,7 @@ async function publish(check) {
       await writeFile(join(dir, file), md);
     }
     const heading = md.match(/^#\s+(.+?)\s*$/m);
-    index.push({ file, title: heading ? heading[1] : file });
+    index.push({ file, title: heading ? heading[1] : file, section });
   }
 
   const json = JSON.stringify(index, null, 2) + '\n';
@@ -159,8 +167,8 @@ async function publish(check) {
 
 const check = process.argv.includes('--check');
 let bad = 0;
-for (const file of LECTURES) {
-  const r = await processFile(file, check);
+for (const { path } of PAGES) {
+  const r = await processFile(path, check);
   bad += r.failures + (r.stale ? 1 : 0);
 }
 bad += await publish(check);

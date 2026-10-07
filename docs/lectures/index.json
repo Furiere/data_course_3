@@ -1,10 +1,22 @@
 [
   {
     "file": "lecture-01-sql-basics.md",
-    "title": "Lecture 1. SQL Basics"
+    "title": "Lecture 1. SQL Basics",
+    "section": "Lectures"
   },
   {
     "file": "lecture-02-ddl-dml-procedures-variables.md",
-    "title": "Lecture 2. DDL & DML, Procedures, Variables"
+    "title": "Lecture 2. DDL & DML, Procedures, Variables",
+    "section": "Lectures"
+  },
+  {
+    "file": "homework-01-sql-basics.md",
+    "title": "Homework 1. Find the Bugs: SQL Basics",
+    "section": "Homework"
+  },
+  {
+    "file": "homework-02-ddl-dml.md",
+    "title": "Homework 2. Find the Bugs: DDL, DML and Functions",
+    "section": "Homework"
   }
 ]

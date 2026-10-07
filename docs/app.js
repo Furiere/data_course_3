@@ -405,13 +405,17 @@ function slugger() {
   };
 }
 
-/** Is this block marked <!--noexec--> — syntax or a deliberate error? */
-function isNoexec(pre) {
+/** The marker comment right before a block: <!--noexec--> is syntax or a
+    deliberate error, <!--broken--> is a homework query with bugs to find. */
+function markerBefore(pre) {
   for (let n = pre.previousSibling; n; n = n.previousSibling) {
     if (n.nodeType === Node.TEXT_NODE && !n.textContent.trim()) continue;
-    return n.nodeType === Node.COMMENT_NODE && n.textContent.includes('noexec');
+    if (n.nodeType !== Node.COMMENT_NODE) return null;
+    if (n.textContent.includes('noexec')) return 'noexec';
+    if (n.textContent.includes('broken')) return 'broken';
+    return null;
   }
-  return false;
+  return null;
 }
 
 function sendToEditor(sql, andRun) {
@@ -449,7 +453,8 @@ function decorate(root) {
     block.append(pre);
 
     const bar = el('div', 'sql-bar');
-    if (isNoexec(block)) {
+    const marker = markerBefore(block);
+    if (marker === 'noexec') {
       bar.append(el('span', 'note', ['Syntax only — not meant to run as it stands']));
     } else {
       const runBtn = el('button', 'btn btn-primary', ['▶ Run']);
@@ -457,6 +462,9 @@ function decorate(root) {
       const loadBtn = el('button', 'btn', ['Load into editor']);
       loadBtn.addEventListener('click', () => sendToEditor(sql, false));
       bar.append(runBtn, loadBtn);
+      if (marker === 'broken') {
+        bar.append(el('span', 'note note-broken', ['Contains deliberate bugs — find and fix them']));
+      }
     }
     block.append(bar);
   }
@@ -483,8 +491,14 @@ function renderToc() {
   const panel = $('panel-lectures');
   panel.innerHTML = '';
 
-  panel.append(el('div', 'section-title', ['Lectures']));
+  // Group by section in index order: Lectures, then Homework.
+  let section = null;
   for (const l of lectureIndex) {
+    const s = l.section || 'Lectures';
+    if (s !== section) {
+      panel.append(el('div', 'section-title', [s]));
+      section = s;
+    }
     const btn = el('button', 'example', [l.title]);
     if (l.file === currentLecture) btn.classList.add('is-active');
     btn.addEventListener('click', () => openLecture(l.file));
