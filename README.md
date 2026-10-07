@@ -5,6 +5,9 @@ A SQL course for trainees and junior data analysts, taught in PostgreSQL.
 - [`lecture-01-sql-basics.md`](lecture-01-sql-basics.md) — filtering, aggregates, window functions, subqueries & CTEs, joins, ACID
 - [`lecture-02-ddl-dml-procedures-variables.md`](lecture-02-ddl-dml-procedures-variables.md) — DDL & DML, views, procedures, variables
 - [`course_curriculum.md`](course_curriculum.md) — the outline
+- [`homework/`](homework/) — two "find the bugs" homeworks, ten broken queries each, with answer keys:
+  [`homework-01-sql-basics.md`](homework/homework-01-sql-basics.md) ([solutions](homework/homework-01-solutions.md)),
+  [`homework-02-ddl-dml.md`](homework/homework-02-ddl-dml.md) ([solutions](homework/homework-02-solutions.md))
 
 ## Live playground
 
